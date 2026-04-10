@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import activities from '@/routes/activities';
+import assessmentCategories from '@/routes/assessment-categories';
 import departments from '@/routes/departments';
 import type { NavItem } from '@/types';
 import employees from '@/wayfinder/routes/employees';
@@ -48,7 +49,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Assessment Categories',
-        href: positions.index(),
+        href: assessmentCategories.index(),
         icon: Train,
     },
     {

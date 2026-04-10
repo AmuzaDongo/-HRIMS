@@ -1,4 +1,3 @@
-import { Link } from "@inertiajs/react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -11,25 +10,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import subDepartments from "@/wayfinder/routes/sub-departments"
 
-interface Department {
+interface AssessmentCategory {
   id: string;
   name: string;
-  code: string; // keep null here
-  description: string | null;
-  parent?: { id: string; name: string };
-  head?: { id: string; first_name: string; last_name: string };
-  is_active: boolean;
+  code: string; 
 }
 
 interface ColumnActions {
-  onView: (department: Department) => void;
-  onEdit: (department: Department) => void;
+  onView: (assessment_category: AssessmentCategory) => void;
+  onEdit: (assessment_category: AssessmentCategory) => void;
   onDelete: (id: string) => void;
 }
 
-export const columns = (actions: ColumnActions): ColumnDef<Department>[] => [
+export const columns = (actions: ColumnActions): ColumnDef<AssessmentCategory>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -55,34 +49,12 @@ export const columns = (actions: ColumnActions): ColumnDef<Department>[] => [
 
   { accessorKey: "name", header: "Name" },
   { accessorKey: "code", header: "Code" },
-  {
-    id: "parent",
-    header: "Parent Department",
-    cell: ({ row }) => row.original.parent?.name || "—",
-  },
-  {
-    id: "head",
-    header: "Head",
-    cell: ({ row }) =>
-      row.original.head
-        ? `${row.original.head.first_name} ${row.original.head.last_name}`
-        : "—",
-  },
-  {
-    id: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <span className={row.original.is_active ? "text-green-600" : "text-red-600"}>
-        {row.original.is_active ? "Active" : "Inactive"}
-      </span>
-    ),
-  },
 
   {
     id: "actions",
     header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => {
-      const department = row.original
+      const assessment_category = row.original
 
       return (
         <DropdownMenu>
@@ -95,12 +67,9 @@ export const columns = (actions: ColumnActions): ColumnDef<Department>[] => [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => actions.onView(department)}>View details</DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={subDepartments.index()}>Sub Department</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => actions.onEdit(department)}>Edit</DropdownMenuItem>
-            <DropdownMenuItem  onClick={() => actions.onDelete(department.id)} className="text-destructive">
+            <DropdownMenuItem onClick={() => actions.onView(assessment_category)}>View details</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => actions.onEdit(assessment_category)}>Edit</DropdownMenuItem>
+            <DropdownMenuItem  onClick={() => actions.onDelete(assessment_category.id)} className="text-destructive">
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

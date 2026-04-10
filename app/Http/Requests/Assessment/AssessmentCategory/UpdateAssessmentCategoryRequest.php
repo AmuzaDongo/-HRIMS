@@ -20,6 +20,7 @@ class UpdateAssessmentCategoryRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+
     public function rules(): array
     {
         return [
@@ -27,14 +28,14 @@ class UpdateAssessmentCategoryRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
-                'unique:assessment_categories,name,' . $this->assessmentCategory->id
+                'unique:assessment_categories,name,' . $this->assessment_category->id
             ],
 
             'code' => [
                 'nullable',
                 'string',
                 'max:20',
-                'unique:assessment_categories,code,' . $this->assessmentCategory->id
+                'unique:assessment_categories,code,' . $this->assessment_category->id
             ],
         ];
     }

@@ -4,36 +4,30 @@ import { Head, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useState } from "react";
 import { toast } from 'sonner';
-import { DepartmentForm } from "@/components/departments/department-form";
-import DepartmentShowModal from '@/components/departments/DepartmentShowModal';
+import { AssessmentCategoryForm } from '@/components/Categories/assessment-category-form';
+import AssessmentCategoryShowModal from '@/components/Categories/AssessmentCategoryShowModal';
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/ui/confirm-provider";
 import { DataTable } from "@/components/ui/data-table";
 import AppLayout from "@/layouts/app-layout";
-import { destroy } from '@/wayfinder/routes/departments';
+import { destroy } from '@/routes/assessment-categories';
 import { columns } from './columns';
 
-interface Department {
+interface AssessmentCategory {
   id: string;
   name: string;
-  code: string; // keep null here
-  description: string | null;
-  parent?: { id: string; name: string };
-  head?: { id: string; first_name: string; last_name: string };
-  is_active: boolean;
+  code: string;
 }
 
-interface PaginatedDepartments {
-  data: Department[];
+interface PaginatedAssessmentCategories {
+  data: AssessmentCategory[];
   links: { url: string | null; label: string; active: boolean }[];
   total: number;
   per_page: number;
 }
 
 interface Props {
-  departments: PaginatedDepartments;
-  parents: { id: string; name: string }[];
-  employees: { id: string; first_name: string; last_name: string }[];
+  assessment_categories: PaginatedAssessmentCategories;
   filters?: { 
     search?: string;
     per_page?: number; 
@@ -41,31 +35,31 @@ interface Props {
   };
 }
 
-export default function DepartmentsIndex({ departments, parents, employees, filters }: Props) {
+export default function AssessmentCategoriesIndex({ assessment_categories, filters }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [showModalOpen, setShowModalOpen] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
-  const [editingDept, setEditingDept] = useState<Department | null>(null);
+  const [selectedAssessmentCategory, setSelectedAssessmentCategory] = useState<AssessmentCategory | null>(null);
+  const [editingCategory, setEditingCategory] = useState<AssessmentCategory | null>(null);
   const { confirm } = useConfirm();
 
   const openAddModal = () => {
-    setEditingDept(null);
+    setEditingCategory(null);
     setModalOpen(true);
   };
 
-  const handleView = (department: Department) => {
-    setSelectedDepartment(department);
+  const handleView = (assessment_category: AssessmentCategory) => {
+    setSelectedAssessmentCategory(assessment_category);
     setShowModalOpen(true);
   };
 
-  const openEditModal = (dept: Department) => {
-    setEditingDept(dept);
+  const openEditModal = (Category: AssessmentCategory) => {
+    setEditingCategory(Category);
     setModalOpen(true);
   };
 
   const handleDelete = (deleteId: string) => {
     confirm({
-      title: "Delete Department",
+      title: "Delete Assessment Category",
       description: "This action cannot be undone.",
       onConfirm: async () => {
         const promise = new Promise((resolve, reject) => {
@@ -76,9 +70,9 @@ export default function DepartmentsIndex({ departments, parents, employees, filt
         });
 
         toast.promise(promise, {
-          loading: "Deleting department...",
-          success: "Department deleted successfully ✅",
-          error: "Failed to delete department ❌",
+          loading: "Deleting assessment category...",
+          success: "Assessment category deleted successfully ✅",
+          error: "Failed to delete assessment category ❌",
         });
 
         await promise;
@@ -89,13 +83,13 @@ export default function DepartmentsIndex({ departments, parents, employees, filt
 
   return (
     <AppLayout>
-      <Head title="Departments" />
+      <Head title="Assessment Categories" />
 
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold">Departments</h1>
+          <h1 className="text-3xl font-bold">Assessment Categories</h1>
           <Button onClick={openAddModal}>
-            <Plus className="mr-1 h-4 w-4" /> Add Department
+            <Plus className="mr-1 h-4 w-4" /> Add Assessment Category
           </Button>
         </div>
 
@@ -105,28 +99,26 @@ export default function DepartmentsIndex({ departments, parents, employees, filt
             onEdit: openEditModal,
             onDelete: handleDelete,
           })}
-          data={departments.data}
-          links={departments.links}
-          total={departments.total}
-          pageSize={departments.per_page || 10}
-          currentRoute="/departments"
+          data={assessment_categories.data}
+          links={assessment_categories.links}
+          total={assessment_categories.total}
+          pageSize={assessment_categories.per_page || 10}
+          currentRoute="/assessment-categories"
           filters={filters}
         />
       </div>
 
       {/* Dynamic Form Modal */}
-      <DepartmentForm
-        initialData={editingDept || undefined}
-        parents={parents}
-        employees={employees}
+      <AssessmentCategoryForm
+        initialData={editingCategory || undefined}
         open={modalOpen}
         onOpenChange={setModalOpen}
       />
 
-      <DepartmentShowModal
+      <AssessmentCategoryShowModal
         open={showModalOpen}
         onClose={() => setShowModalOpen(false)}
-        department={selectedDepartment}
+        assessment_category={selectedAssessmentCategory}
       />
     </AppLayout>
   );

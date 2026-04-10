@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Assessment\AssessmentCategory\StoreAssessmentCategoryRequest;
 use App\Http\Requests\Assessment\AssessmentCategory\UpdateAssessmentCategoryRequest;
-use App\Models\HR\Department;
+use App\Models\Assessment\AssessmentCategory;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -34,8 +34,8 @@ class AssessmentCategoryController extends Controller
                 ];
             });
 
-        return Inertia::render('Assessment/Categories/Index', [
-            'assessmentCategories' => $assessmentCategories,
+        return Inertia::render('Assessment/AssessmentCategories/Index', [
+            'assessment_categories' => $assessmentCategories,
             'filters' => $request->only(['search', 'per_page']),
         ]);
     }
@@ -52,7 +52,7 @@ class AssessmentCategoryController extends Controller
     {
         $category->load(['parent', 'head', 'children', 'employees']);
 
-        return Inertia::render('Assessment/Categories/Show', [
+        return Inertia::render('Assessment/AssessmentCategories/Show', [
             'category' => $category,
         ]);
     }
@@ -63,22 +63,26 @@ class AssessmentCategoryController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return Inertia::render('Assessment/Categories/Edit', [
+        return Inertia::render('Assessment/AssessmentCategories/Edit', [
             'category' => $category,
         ]);
     }
 
-    public function update(UpdateAssessmentCategoryRequest $request, AssessmentCategory $category): RedirectResponse
+    public function update(UpdateAssessmentCategoryRequest $request, AssessmentCategory $assessment_category)
     {
-        $category->update($request->validated());
+        $data = $request->validated();
+
+        if (!empty($data)) {
+            $assessment_category->update($data);
+        }
 
         return redirect()->route('assessment-categories.index')
-            ->with('success', 'Assessment category updated successfully.');
+            ->with('success', 'Updated successfully.');
     }
 
-    public function destroy(AssessmentCategory $category): RedirectResponse
+    public function destroy(AssessmentCategory $assessment_category): RedirectResponse
     {
-        $category->delete();
+        $assessment_category->delete();
 
         return redirect()->route('assessment-categories.index')
             ->with('success', 'Assessment category deleted successfully.');
