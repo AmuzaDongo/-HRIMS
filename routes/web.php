@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\AssessmentCategoryController;
 use App\Http\Controllers\SubDepartmentController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\EmployeeController;
@@ -18,6 +19,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('departments', DepartmentController::class);
+    Route::resource('assessment-categories', AssessmentCategoryController::class);
     Route::resource('sub-departments', SubDepartmentController::class);
     Route::resource('positions', PositionController::class);
     Route::resource('employees', EmployeeController::class);
