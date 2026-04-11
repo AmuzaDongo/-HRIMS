@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\HR;
 namespace App\Models;
-
+namespace App\Models\HR;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Ramsey\Uuid\Uuid;
 
@@ -13,7 +13,16 @@ class MarkingCenter extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
-    protected $fillable = ['name', 'code', 'type', 'region', 'district', 'address', 'is_active'];
+    protected $fillable = [
+        'name',
+        'code',
+        'type',
+        'region',
+        'district',
+        'address',
+        'is_active',
+        'status',
+    ];
 
     protected static function boot()
     {

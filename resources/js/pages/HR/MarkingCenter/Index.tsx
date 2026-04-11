@@ -4,39 +4,39 @@ import { Head, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useState } from "react";
 import { toast } from 'sonner';
-import { DepartmentForm } from "@/components/departments/department-form";
-import DepartmentShowModal from '@/components/departments/DepartmentShowModal';
+import { MarkingCenterForm } from '@/components/MarkingCenter/marking-center-form';
+import MarkingCenterShowModal from '@/components/MarkingCenter/MarkingCenterShowModal';
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/ui/confirm-provider";
 import { DataTable } from "@/components/ui/data-table";
 import AppLayout from "@/layouts/app-layout";
 import { dashboard } from '@/routes';
-import departments from '@/routes/departments';
+import markingCenters from '@/routes/marking-centers';
+import { destroy } from '@/routes/marking-centers';
 import type { BreadcrumbItem } from "@/types";
-import { destroy } from '@/wayfinder/routes/departments';
 import { columns } from './columns';
 
-interface Department {
+interface MarkingCenter {
   id: string;
   name: string;
-  code: string; // keep null here
-  description: string | null;
-  parent?: { id: string; name: string };
-  head?: { id: string; first_name: string; last_name: string };
+  code: string;
+  type: string;
+  region: string;
+  district: string;
+  address: string;
   is_active: boolean;
+  status: string;
 }
 
-interface PaginatedDepartments {
-  data: Department[];
+interface PaginatedMarkingCenters {
+  data: MarkingCenter[];
   links: { url: string | null; label: string; active: boolean }[];
   total: number;
   per_page: number;
 }
 
 interface Props {
-  departments: PaginatedDepartments;
-  parents: { id: string; name: string }[];
-  employees: { id: string; first_name: string; last_name: string }[];
+  marking_centers: PaginatedMarkingCenters;
   filters?: { 
     search?: string;
     per_page?: number; 
@@ -46,34 +46,34 @@ interface Props {
 
 const breadcrumbs = (): BreadcrumbItem[] => [
   { title: 'Dashboard', href: dashboard().url || "/" },
-  { title: 'Departments', href: departments.index().url || "/departments" },
+  { title: 'Location', href: markingCenters.index().url || "/marking-center" },
 ];
 
-export default function DepartmentsIndex({ departments, parents, employees, filters }: Props) {
+export default function DepartmentsIndex({ marking_centers, filters }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [showModalOpen, setShowModalOpen] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
-  const [editingDept, setEditingDept] = useState<Department | null>(null);
+  const [selectedMarkingCenter, setSelectedMarkingCenter] = useState<MarkingCenter | null>(null);
+  const [editingMarkingCenter, setEditingMarkingCenter] = useState<MarkingCenter | null>(null);
   const { confirm } = useConfirm();
 
   const openAddModal = () => {
-    setEditingDept(null);
+    setEditingMarkingCenter(null);
     setModalOpen(true);
   };
 
-  const handleView = (department: Department) => {
-    setSelectedDepartment(department);
+  const handleView = (marking_center: MarkingCenter) => {
+    setSelectedMarkingCenter(marking_center);
     setShowModalOpen(true);
   };
 
-  const openEditModal = (dept: Department) => {
-    setEditingDept(dept);
+  const openEditModal = (marking_center: MarkingCenter) => {
+    setEditingMarkingCenter(marking_center);
     setModalOpen(true);
   };
 
   const handleDelete = (deleteId: string) => {
     confirm({
-      title: "Delete Department",
+      title: "Delete Location",
       description: "This action cannot be undone.",
       onConfirm: async () => {
         const promise = new Promise((resolve, reject) => {
@@ -84,9 +84,9 @@ export default function DepartmentsIndex({ departments, parents, employees, filt
         });
 
         toast.promise(promise, {
-          loading: "Deleting department...",
-          success: "Department deleted successfully ✅",
-          error: "Failed to delete department ❌",
+          loading: "Deleting Location...",
+          success: "Location deleted successfully ✅",
+          error: "Failed to delete Location ❌",
         });
 
         await promise;
@@ -97,13 +97,13 @@ export default function DepartmentsIndex({ departments, parents, employees, filt
 
   return (
     <AppLayout breadcrumbs={breadcrumbs()}>
-      <Head title="Departments" />
+      <Head title="Locations" />
 
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold">Departments</h1>
+          <h1 className="text-3xl font-bold">Locations</h1>
           <Button onClick={openAddModal}>
-            <Plus className="mr-1 h-4 w-4" /> Add Department
+            <Plus className="mr-1 h-4 w-4" /> Add Location
           </Button>
         </div>
 
@@ -113,28 +113,26 @@ export default function DepartmentsIndex({ departments, parents, employees, filt
             onEdit: openEditModal,
             onDelete: handleDelete,
           })}
-          data={departments.data}
-          links={departments.links}
-          total={departments.total}
-          pageSize={departments.per_page || 10}
-          currentRoute="/departments"
+          data={marking_centers.data}
+          links={marking_centers.links}
+          total={marking_centers.total}
+          pageSize={marking_centers.per_page || 10}
+          currentRoute="/marking-centers"
           filters={filters}
         />
       </div>
 
       {/* Dynamic Form Modal */}
-      <DepartmentForm
-        initialData={editingDept || undefined}
-        parents={parents}
-        employees={employees}
+      <MarkingCenterForm
+        initialData={editingMarkingCenter || undefined}
         open={modalOpen}
         onOpenChange={setModalOpen}
       />
 
-      <DepartmentShowModal
+      <MarkingCenterShowModal
         open={showModalOpen}
         onClose={() => setShowModalOpen(false)}
-        department={selectedDepartment}
+        marking_center={selectedMarkingCenter}
       />
     </AppLayout>
   );

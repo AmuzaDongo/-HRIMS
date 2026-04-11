@@ -10,7 +10,9 @@ import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/ui/confirm-provider";
 import { DataTable } from "@/components/ui/data-table";
 import AppLayout from "@/layouts/app-layout";
-import { destroy } from '@/routes/assessment-categories';
+import { dashboard } from '@/routes';
+import assessmentCategories, { destroy } from '@/routes/assessment-categories';
+import type { BreadcrumbItem } from "@/types";
 import { columns } from './columns';
 
 interface AssessmentCategory {
@@ -34,6 +36,11 @@ interface Props {
     [key: string]: string | number | undefined;
   };
 }
+
+const breadcrumbs = (): BreadcrumbItem[] => [
+  { title: 'Dashboard', href: dashboard().url || "/" },
+  { title: 'Assessment Categories', href: assessmentCategories.index().url || "/assessment-categories" },
+];
 
 export default function AssessmentCategoriesIndex({ assessment_categories, filters }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -82,7 +89,7 @@ export default function AssessmentCategoriesIndex({ assessment_categories, filte
 
 
   return (
-    <AppLayout>
+    <AppLayout breadcrumbs={breadcrumbs()}>
       <Head title="Assessment Categories" />
 
       <div className="p-6">

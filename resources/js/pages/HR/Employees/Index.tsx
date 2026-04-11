@@ -25,6 +25,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import AppLayout from "@/layouts/app-layout";
+import { dashboard } from "@/routes";
+import employees from "@/routes/employees";
+import type { BreadcrumbItem } from "@/types";
 import { destroy, edit, show } from "@/wayfinder/routes/employees";
 
 
@@ -58,6 +61,11 @@ interface Props {
     [key: string]: any;
   };
 }
+
+const breadcrumbs = (): BreadcrumbItem[] => [
+  { title: 'Dashboard', href: dashboard().url || "/" },
+  { title: 'Employees', href: employees.index().url || "/employees" },
+];
 
 export default function EmployeeIndex({ employees, filters }: Props) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -159,7 +167,7 @@ export default function EmployeeIndex({ employees, filters }: Props) {
   ];
 
   return (
-    <AppLayout>
+    <AppLayout breadcrumbs={breadcrumbs()}>
       <Head title="Employees" />
 
       <div className="p-6 space-y-6">
