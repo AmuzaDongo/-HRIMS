@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Assessment\Paper\StoreScriptRequest;
-use App\Http\Requests\Assessment\Paper\UpdateScriptRequest;
+use App\Http\Requests\Assessment\Script\StoreScriptRequest;
+use App\Http\Requests\Assessment\Script\UpdateScriptRequest;
 use App\Models\Assessment\Script;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
