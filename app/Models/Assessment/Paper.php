@@ -70,4 +70,9 @@ class Paper extends Model
 
         return asset('storage/' . $this->file_path);
     }
+
+    public function scripts()
+    {
+        return $this->hasMany(Script::class);
+    }
 }
