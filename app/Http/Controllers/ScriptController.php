@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Assessment\Script\StoreScriptRequest;
 use App\Http\Requests\Assessment\Script\UpdateScriptRequest;
-use App\Models\Assessment\Script;
+use App\Models\Assessment\ScriptBatch;
 use App\Models\Assessment\Paper;
+use App\Models\HR\MarkingCenter;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,11 +16,13 @@ class ScriptController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = Script::query()
+        $query = ScriptBatch::query()
             ->with(['paper:id,name,code'])
+            ->with(['marking_center:id,name'])
             ->when($request->search, function ($q, $search) {
                 $q->where(function ($q) use ($search) {
-                    $q->where('center_origin', 'like', "%{$search}%")
+                    $q->where('paper.name', 'like', "%{$search}%")
+                    ->orWhere('marking_center.name', 'like', "%{$search}%")
                     ->orWhere('status', 'like', "%{$search}%")
                     ->orWhere('current_location', 'like', "%{$search}%");
                 });
@@ -36,6 +39,8 @@ class ScriptController extends Controller
             'scripts' => $scripts,
             'papers' => Paper::orderBy('name')
                 ->get(['id', 'name', 'code']),
+            'markingCenters' => MarkingCenter::orderBy('name')
+                ->get(['id', 'name']),
             'filters' => $request->only(['search', 'status', 'type', 'per_page']),
         ]);
     }
@@ -55,13 +60,13 @@ class ScriptController extends Controller
         $validated['created_by'] = auth()->id();
         $validated['updated_by'] = auth()->id();
 
-        Script::create($validated);
+        ScriptBatch::create($validated);
 
         return redirect()->route('scripts.index')
             ->with('success', 'Script created successfully.');
     }
 
-    public function show(Script $script): Response
+    public function show(ScriptBatch $script): Response
     {
         $script->load(['paper:id,name']);
 
@@ -70,9 +75,9 @@ class ScriptController extends Controller
         ]);
     }
 
-    public function edit(Script $script): Response
+    public function edit(ScriptBatch $script): Response
     {
-        $parents = Script::where('id', '!=', $script->id)
+        $marking_centers = MarkingCenter::where('id', '!=', $script->id)
             ->orderBy('name')
             ->get(['id', 'name']);
 
@@ -84,7 +89,7 @@ class ScriptController extends Controller
         ]);
     }
 
-    public function update(UpdateScriptRequest $request, Script $script): RedirectResponse
+    public function update(UpdateScriptRequest $request, ScriptBatch $script): RedirectResponse
     {
         $validated = $request->validated();
         $validated['updated_by'] = auth()->id();
@@ -95,7 +100,7 @@ class ScriptController extends Controller
             ->with('success', 'Script updated successfully.');
     }
 
-    public function destroy(Script $script): RedirectResponse
+    public function destroy(ScriptBatch $script): RedirectResponse
     {
         $script->delete();
 

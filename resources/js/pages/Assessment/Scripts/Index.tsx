@@ -17,12 +17,18 @@ import { columns } from './columns';
 
 interface Script {
   id: string;
-  papers: {
+  type: string;
+  paper: {
     id: string;
     name: string;
     code: string;
-  }[];
-  center_origin: string;
+  };
+  batch_code: string;
+  total_scripts: number;
+  marking_center: {
+    id: string;
+    name: string;
+  };
   current_location: string;
   status: string;
 }
@@ -41,6 +47,10 @@ interface Props {
     name: string;
     code: string;
   }[];
+  markingCenters: {
+    id: string;
+    name: string;
+  }[];
   filters?: Record<string, string | number | undefined>;
 }
 
@@ -49,7 +59,7 @@ const breadcrumbs = (): BreadcrumbItem[] => [
   { title: 'Scripts', href: scripts.index().url || "/scripts" },
 ];
 
-export default function ActivitiesIndex({ scripts, papers, filters }: Props) {
+export default function ActivitiesIndex({ scripts, papers, markingCenters, filters }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [showModalOpen, setShowModalOpen] = useState(false);
   const [selectedScript, setSelectedScript] = useState<Script | null>(null);
@@ -129,6 +139,7 @@ export default function ActivitiesIndex({ scripts, papers, filters }: Props) {
       <ScriptForm
         initialData={editingScript || undefined}
         papers={papers}
+        marking_centers={markingCenters}
         open={modalOpen}
         onOpenChange={setModalOpen}
       />

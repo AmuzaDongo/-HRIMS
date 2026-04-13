@@ -14,12 +14,18 @@ import {
 
 interface Script {
   id: string;
-  papers: {
+  type: string;
+  paper: {
     id: string;
     name: string;
     code: string;
-  }[];
-  center_origin: string;
+  };
+  batch_code: string;
+  total_scripts: number;
+  marking_center: {
+    id: string;
+    name: string;
+  };
   current_location: string;
   status: string;
 }
@@ -56,8 +62,10 @@ export const columns = (actions: ColumnActions): ColumnDef<Script>[] => [
 
   { accessorKey: "paper.code", header: "Paper Code" },
   { accessorKey: "paper.name", header: "Paper Name" },
-  { accessorKey: "center_origin", header: "Center Origin" },
+  { accessorKey: "marking_center.name", header: "Center" },
   { accessorKey: "current_location", header: "Current Location" },
+  { accessorKey: "current_location", header: "Assessment Series" },
+  { accessorKey: "total_scripts", header: "Total Scripts" },
   {
     id: "status",
     header: "Status",

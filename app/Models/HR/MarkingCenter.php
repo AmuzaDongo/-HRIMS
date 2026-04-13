@@ -36,4 +36,9 @@ class MarkingCenter extends Model
                     ->withPivot('role')
                     ->withTimestamps();
     }
+
+    public function script_batches()
+    {
+        return $this->hasMany(ScriptBatch::class, 'center_id');
+    }
 }

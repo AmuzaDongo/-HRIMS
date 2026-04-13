@@ -8,13 +8,19 @@ import {
 
 interface Script {
   id: number;
-  center_origin: string;
-  current_location: string;
-  status: string;
-  paper?: {
+  type: string;
+  paper: {
     name: string;
     code: string;
   };
+  batch_code: string;
+  total_scripts: number;
+  marking_center: {
+    id: string;
+    name: string;
+  };
+  current_location: string;
+  status: string;
   update: (id: number) => string;
 }
 
@@ -53,7 +59,7 @@ export default function ScriptShowModal({
 
             <div>
               <h4 className="text-sm text-muted-foreground">Center Origin</h4>
-              <p className="text-lg font-semibold">{script.center_origin}</p>
+              <p className="text-lg font-semibold">{script.marking_center?.name}</p>
             </div>
           </div>
           <div>

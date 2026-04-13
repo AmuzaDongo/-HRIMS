@@ -13,15 +13,19 @@ import scripts from "@/routes/scripts";
 
 interface Script {
   id?: string;
-  center_origin: string;
+  type: string;
   status: string;
+  batch_code?: string;
+  total_scripts: number;
   current_location: string;
   paper?: { id: string; name: string, code: string };
+  marking_center?: { id: string; name: string };
 }
 
 interface ScriptFormProps {
   initialData?: Script;
   papers: { id: string; name: string }[];
+  marking_centers: { id: string; name: string }[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -29,13 +33,20 @@ interface ScriptFormProps {
 export function ScriptForm({
   initialData,
   papers,
+  marking_centers,
   open,
   onOpenChange,
 }: ScriptFormProps) {
   const isEditMode = !!initialData?.id;
 
   const validationSchema = Yup.object().shape({
-    center_origin: Yup.string().required("Center origin is required"),
+    type: Yup.string().required("Type is required"),
+    center_id: Yup.string().required("Center is required"),
+    batch_code: Yup.string().nullable(),
+    total_scripts: Yup.number()
+      .typeError("Total scripts must be a number")
+      .required("Total scripts is required")
+      .min(1, "Total scripts must be greater than zero"),
     status: Yup.string().required("Status is required"),
     current_location: Yup.string().required("Current location is required"),
     paper_id: Yup.string().required("Paper is required"),
@@ -56,7 +67,10 @@ export function ScriptForm({
         <Formik
           enableReinitialize
           initialValues={{
-            center_origin: initialData?.center_origin || "",
+            type: initialData?.type || "single",
+            center_id: initialData?.marking_center?.id || "",
+            batch_code: initialData?.batch_code || "",
+            total_scripts: initialData?.total_scripts || 0,
             status: initialData?.status || "",
             current_location: initialData?.current_location || "",
             paper_id: initialData?.paper?.id || "",
@@ -97,7 +111,28 @@ export function ScriptForm({
         >
           {({ values, setFieldValue, isSubmitting }) => (
             <Form className="space-y-4">
-              {/* Paper */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="type" className="text-right">
+                  Type
+                </Label>
+                <Select
+                  value={values.type}
+                  onValueChange={(value) => setFieldValue("type", value)}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="single">Single</SelectItem>
+                    <SelectItem value="batch">Batch</SelectItem>
+                  </SelectContent>
+                </Select>
+                <ErrorMessage
+                  name="type"
+                  component="p"
+                  className="col-span-4 text-sm text-red-600"
+                />
+              </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="paper_id" className="text-right">
                   Paper
@@ -107,7 +142,7 @@ export function ScriptForm({
                   onValueChange={(value) => setFieldValue("paper_id", value)}
                 >
                   <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select paper (optional)" />
+                    <SelectValue placeholder="Select paper" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="paper_id">None</SelectItem>
@@ -117,20 +152,52 @@ export function ScriptForm({
                       </SelectItem>
                     ))}
                   </SelectContent>
+                  <ErrorMessage
+                    name="paper_id"
+                    component="p"
+                    className="col-span-4 text-sm text-red-600"
+                  />
                 </Select>
               </div>
 
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="center_origin" className="text-right">
-                  Center Origin
+                <Label htmlFor="total_scripts" className="text-right">
+                  Total Scripts
                 </Label>
                 <Field
                   as={Input}
-                  id="center_origin"
-                  name="center_origin"
-                  placeholder="e.g., Center Name"
+                  id="total_scripts"
+                  name="total_scripts"
+                  placeholder="e.g., 100"
                   className="col-span-3"
                 />
+                <ErrorMessage
+                  name="total_scripts"
+                  component="p"
+                  className="col-span-4 text-sm text-red-600"
+                />
+              </div>
+
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="center_origin" className="text-right">
+                  Center
+                </Label>
+                <Select
+                  value={values.center_id || ""}
+                  onValueChange={(value) => setFieldValue("center_id", value)}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select Center" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="center_id">None</SelectItem>
+                    {marking_centers.map((center) => (
+                      <SelectItem key={center.id} value={center.id}>
+                        {center.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <ErrorMessage
                   name="center_origin"
                   component="p"
@@ -151,6 +218,24 @@ export function ScriptForm({
                 />
                 <ErrorMessage
                   name="current_location"
+                  component="p"
+                  className="col-span-4 text-sm text-red-600"
+                />
+              </div>
+
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="batch_code" className="text-right">
+                  Batch Code
+                </Label>
+                <Field
+                  as={Input}
+                  id="batch_code"
+                  name="batch_code"
+                  placeholder="e.g., 123456789"
+                  className="col-span-3"
+                />
+                <ErrorMessage
+                  name="batch_code"
                   component="p"
                   className="col-span-4 text-sm text-red-600"
                 />
@@ -184,7 +269,7 @@ export function ScriptForm({
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isEditMode ? "Update Department" : "Create Department"}
+                  {isEditMode ? "Update Scripts" : "Create Scripts"}
                 </Button>
               </DialogFooter>
             </Form>

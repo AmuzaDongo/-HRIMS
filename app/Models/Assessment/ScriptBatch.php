@@ -5,17 +5,17 @@ namespace App\Models\Assessment;
 use Illuminate\Database\Eloquent\Model;
 use Ramsey\Uuid\Uuid;
 use App\Models\User;
+use App\Models\HR\MarkingCenter;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
 class ScriptBatch extends Model
 {
-
     protected $keyType = 'string';
     public $incrementing = false;
 
     protected $fillable = [
-        'paper_id', 'center_id', 'batch_code', 'total_scripts', 'metadata',
+        'type', 'paper_id', 'center_id', 'batch_code', 'total_scripts','current_location', 'status', 'metadata',
     ];
 
     protected $casts = [
@@ -31,6 +31,16 @@ class ScriptBatch extends Model
                 $model->id = Uuid::uuid4()->toString();
             }
         });
+    }
+
+    public function paper()
+    {
+        return $this->belongsTo(Paper::class);
+    }
+
+    public function marking_center()
+    {
+        return $this->belongsTo(MarkingCenter::class, 'center_id');
     }
 }
 

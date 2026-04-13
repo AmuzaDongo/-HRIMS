@@ -13,8 +13,11 @@ return new class extends Migration
     {
         Schema::create('script_batches', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->enum('type', ['single', 'batch']);
             $table->foreignId('paper_id')->constrained()->cascadeOnDelete();
             $table->foreignId('center_id')->constrained('marking_centers')->cascadeOnDelete();
+            $table->string('current_location')->nullable();
+            $table->enum('status', ['received', 'allocated', 'marked', 'checked'])->default('received');
             $table->string('batch_code')->unique();
             $table->integer('total_scripts');
             $table->timestamps();

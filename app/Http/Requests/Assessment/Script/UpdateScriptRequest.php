@@ -14,9 +14,11 @@ class UpdateScriptRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'type' => 'required|string|in:single,batch',
             'paper_id' => 'required|uuid|exists:papers,id',
-            'center_origin' => 'required|string|max:255',
-            'barcode' => 'nullable|string|max:255',
+            'center_id' => 'required|uuid|exists:marking_centers,id',
+            'batch_code' => 'nullable|string|max:255',
+            'total_scripts' => 'required|integer|min:1',
             'status' => 'required|string|in:received,allocated,marked,checked',
             'current_location' => 'required|string|max:255'
         ];

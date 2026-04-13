@@ -75,4 +75,9 @@ class Paper extends Model
     {
         return $this->hasMany(Script::class);
     }
+
+    public function script_batches()
+    {
+        return $this->hasMany(ScriptBatch::class);
+    }
 }
