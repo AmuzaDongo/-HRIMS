@@ -15,7 +15,7 @@ class ScriptBatch extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'type', 'paper_id', 'center_id', 'batch_code', 'total_scripts','current_location', 'status', 'metadata',
+        'type', 'paper_id', 'center_id', 'batch_code', 'total_scripts','current_location', 'status', 'assessment_series_id', 'metadata',
     ];
 
     protected $casts = [
@@ -41,6 +41,11 @@ class ScriptBatch extends Model
     public function marking_center()
     {
         return $this->belongsTo(MarkingCenter::class, 'center_id');
+    }
+
+    public function assessment_series()
+    {
+        return $this->belongsTo(AssessmentSeries::class);
     }
 }
 

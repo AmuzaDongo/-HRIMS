@@ -15,7 +15,7 @@ class StoreAssessmentSeriesRequest extends FormRequest
     {
         return [
             'name'       => ['required', 'string', 'max:255', 'unique:assessment_series,name'],
-            'year' => ['nullable', 'string', 'max:255', 'unique:assessment_series,year'],
+            'year' => ['nullable', 'string', 'max:255'],
             'status' => ['required', 'in:active,inactive'],
         ];
     }

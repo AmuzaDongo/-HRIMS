@@ -1,5 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal } from "lucide-react"
+import { CheckCircle2, MoreHorizontal, XCircle } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -50,7 +51,47 @@ export const columns = (actions: ColumnActions): ColumnDef<AssessmentSeries>[] =
 
   { accessorKey: "name", header: "Series" },
   { accessorKey: "year", header: "Year" },
-  { accessorKey: "status", header: "Status" },
+
+  {
+    id: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const status = (row.original.status || "draft").toLowerCase();
+
+      const configs: Record<
+      string,
+      {
+        label: string;
+        color: string;
+        icon: React.ComponentType<{ className?: string }>;
+      }
+    > = {
+      active: {
+        label: "Active",
+        color: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30",
+        icon: CheckCircle2,
+      },
+
+      inactive: {
+        label: "Inactive",
+        color: "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800",
+        icon: XCircle,
+      },
+    };
+
+      const config = configs[status] || configs.draft;
+
+      return (
+        <Badge 
+          variant="secondary"
+          className={`capitalize border-${config.color}-300 bg-${config.color}-100 text-${config.color}-700 flex items-center gap-1.5`}
+        >
+          <config.icon className="h-3 w-3" />
+          {config.label}
+        </Badge>
+      );
+    },
+  },
 
   {
     id: "actions",

@@ -6,6 +6,7 @@ use App\Http\Requests\Assessment\Script\StoreScriptRequest;
 use App\Http\Requests\Assessment\Script\UpdateScriptRequest;
 use App\Models\Assessment\ScriptBatch;
 use App\Models\Assessment\Paper;
+use App\Models\Assessment\AssessmentSeries;
 use App\Models\HR\MarkingCenter;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -17,11 +18,16 @@ class ScriptController extends Controller
     public function index(Request $request): Response
     {
         $query = ScriptBatch::query()
+
             ->with(['paper:id,name,code'])
             ->with(['marking_center:id,name'])
+            ->with(['assessment_series:id,name'])
             ->when($request->search, function ($q, $search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('paper.name', 'like', "%{$search}%")
+                    ->orWhere('paper.code', 'like', "%{$search}%")
+                    ->orWhere('assessment_series.name', 'like', "%{$search}%")
+                    ->orWhere('assessment_series.year', 'like', "%{$search}%")
                     ->orWhere('marking_center.name', 'like', "%{$search}%")
                     ->orWhere('status', 'like', "%{$search}%")
                     ->orWhere('current_location', 'like', "%{$search}%");
@@ -37,6 +43,8 @@ class ScriptController extends Controller
 
         return Inertia::render('Assessment/Scripts/Index', [
             'scripts' => $scripts,
+            'assessmentSeries' => AssessmentSeries::orderBy('name')
+                ->get(['id', 'name']),
             'papers' => Paper::orderBy('name')
                 ->get(['id', 'name', 'code']),
             'markingCenters' => MarkingCenter::orderBy('name')

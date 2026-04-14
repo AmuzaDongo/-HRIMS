@@ -18,7 +18,7 @@ class Paper extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'name', 'code', 'file_path', 'metadata',
+        'name', 'code', 'file_path', 'assessment_series_id', 'metadata',
     ];
 
     protected $casts = [
@@ -79,5 +79,10 @@ class Paper extends Model
     public function script_batches()
     {
         return $this->hasMany(ScriptBatch::class);
+    }
+
+    public function assessment_series()
+    {
+        return $this->belongsTo(AssessmentSeries::class);
     }
 }

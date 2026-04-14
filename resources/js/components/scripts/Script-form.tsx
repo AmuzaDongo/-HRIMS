@@ -18,12 +18,14 @@ interface Script {
   batch_code?: string;
   total_scripts: number;
   current_location: string;
+  assessment_series?: { id: string; name: string };
   paper?: { id: string; name: string, code: string };
   marking_center?: { id: string; name: string };
 }
 
 interface ScriptFormProps {
   initialData?: Script;
+  assessmentSeries: { id: string; name: string }[];
   papers: { id: string; name: string }[];
   marking_centers: { id: string; name: string }[];
   open: boolean;
@@ -32,6 +34,7 @@ interface ScriptFormProps {
 
 export function ScriptForm({
   initialData,
+  assessmentSeries,
   papers,
   marking_centers,
   open,
@@ -40,6 +43,7 @@ export function ScriptForm({
   const isEditMode = !!initialData?.id;
 
   const validationSchema = Yup.object().shape({
+    assessment_series_id: Yup.string().required("Assessment series is required"),
     type: Yup.string().required("Type is required"),
     center_id: Yup.string().required("Center is required"),
     batch_code: Yup.string().nullable(),
@@ -67,6 +71,7 @@ export function ScriptForm({
         <Formik
           enableReinitialize
           initialValues={{
+            assessment_series_id: initialData?.assessment_series?.id || "",
             type: initialData?.type || "single",
             center_id: initialData?.marking_center?.id || "",
             batch_code: initialData?.batch_code || "",
@@ -111,6 +116,32 @@ export function ScriptForm({
         >
           {({ values, setFieldValue, isSubmitting }) => (
             <Form className="space-y-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="assessment_series_id" className="text-right">
+                  Assessment Series
+                </Label>
+                <Select
+                  value={values.assessment_series_id || ""}
+                  onValueChange={(value) => setFieldValue("assessment_series_id", value)}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select assessment series" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="assessment_series_id">None</SelectItem>
+                    {assessmentSeries.map((series) => (
+                      <SelectItem key={series.id} value={series.id}>
+                        {series.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                  <ErrorMessage
+                    name="paper_id"
+                    component="p"
+                    className="col-span-4 text-sm text-red-600"
+                  />
+                </Select>
+              </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="type" className="text-right">
                   Type

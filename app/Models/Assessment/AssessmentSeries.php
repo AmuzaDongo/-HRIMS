@@ -40,4 +40,14 @@ class AssessmentSeries extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function papers()
+    {
+        return $this->hasMany(Paper::class);
+    }
+
+    public function script_batches()
+    {
+        return $this->hasMany(ScriptBatch::class);
+    }
 }

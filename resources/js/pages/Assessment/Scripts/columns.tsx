@@ -15,6 +15,10 @@ import {
 interface Script {
   id: string;
   type: string;
+  assessment_series: {
+    id: string;
+    name: string;
+  };
   paper: {
     id: string;
     name: string;
@@ -64,7 +68,7 @@ export const columns = (actions: ColumnActions): ColumnDef<Script>[] => [
   { accessorKey: "paper.name", header: "Paper Name" },
   { accessorKey: "marking_center.name", header: "Center" },
   { accessorKey: "current_location", header: "Current Location" },
-  { accessorKey: "current_location", header: "Assessment Series" },
+  { accessorKey: "assessment_series.name", header: "Assessment Series" },
   { accessorKey: "total_scripts", header: "Total Scripts" },
   {
     id: "status",

@@ -4,6 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Badge } from '../ui/badge';
 
 interface AssessmentSeries {
   id: number;
@@ -45,6 +46,9 @@ export default function AssessmentSeriesShowModal({
               </p>
               <h4 className="text-sm text-muted-foreground">Year</h4>
               <p className="text-lg font-semibold">{assessmentSeries.year}</p>
+
+              <h4 className="text-sm text-muted-foreground">Status</h4>
+              <Badge>{assessmentSeries.status}</Badge>
             </div>
           </div>
         </div>

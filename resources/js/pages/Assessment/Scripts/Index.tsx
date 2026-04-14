@@ -18,6 +18,10 @@ import { columns } from './columns';
 interface Script {
   id: string;
   type: string;
+  assessment_series: {
+    id: string;
+    name: string;
+  };
   paper: {
     id: string;
     name: string;
@@ -42,6 +46,7 @@ interface Paginatedscripts {
   
 interface Props {
   scripts: Paginatedscripts;
+  assessmentSeries: { id: string; name: string }[];
   papers: {
     id: string;
     name: string;
@@ -59,7 +64,7 @@ const breadcrumbs = (): BreadcrumbItem[] => [
   { title: 'Scripts', href: scripts.index().url || "/scripts" },
 ];
 
-export default function ActivitiesIndex({ scripts, papers, markingCenters, filters }: Props) {
+export default function ActivitiesIndex({ scripts, assessmentSeries, papers, markingCenters, filters }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [showModalOpen, setShowModalOpen] = useState(false);
   const [selectedScript, setSelectedScript] = useState<Script | null>(null);
@@ -138,6 +143,7 @@ export default function ActivitiesIndex({ scripts, papers, markingCenters, filte
       {/* Add/Edit Form Modal */}
       <ScriptForm
         initialData={editingScript || undefined}
+        assessmentSeries={assessmentSeries}
         papers={papers}
         marking_centers={markingCenters}
         open={modalOpen}
