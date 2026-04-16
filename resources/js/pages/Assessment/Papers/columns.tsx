@@ -16,6 +16,10 @@ interface Paper {
   name: string;
   code: string;
   file_path: string;
+  assessment_series: {
+    id: string;
+    name: string;
+  };
 }
 
 interface ColumnActions {
@@ -50,6 +54,7 @@ export const columns = (actions: ColumnActions): ColumnDef<Paper>[] => [
 
   { accessorKey: "code", header: "Code" },
   { accessorKey: "name", header: "Name" },
+  { accessorKey: "assessment_series.name", header: "Assessment Series" },
 
   {
     id: "actions",

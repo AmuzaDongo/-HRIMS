@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Assessment\Paper\StorePaperRequest;
 use App\Http\Requests\Assessment\Paper\UpdatePaperRequest;
+use App\Models\Assessment\AssessmentSeries;
 use App\Models\Assessment\Paper;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -15,10 +16,13 @@ class PaperController extends Controller
     public function index(Request $request): Response
     {
         $query = Paper::query()
+            ->with(['assessment_series:id,name'])
             ->when($request->search, function ($q, $search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%");
+                    ->orWhere('code', 'like', "%{$search}%")
+                    ->orWhere('assessment_series.name', 'like', "%{$search}%")
+                    ->orWhere('assessment_series.year', 'like', "%{$search}%");
                 });
             })
             ->when($request->status, fn($q, $status) => $q->where('status', $status))
@@ -31,6 +35,8 @@ class PaperController extends Controller
 
         return Inertia::render('Assessment/Papers/Index', [
             'papers' => $papers,
+            'assessmentSeries' => AssessmentSeries::orderBy('name')
+                ->get(['id', 'name']),
             'filters' => $request->only(['search', 'status', 'type', 'per_page']),
         ]);
     }

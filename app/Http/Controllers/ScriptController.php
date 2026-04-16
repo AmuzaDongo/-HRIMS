@@ -27,7 +27,6 @@ class ScriptController extends Controller
                     $q->where('paper.name', 'like', "%{$search}%")
                     ->orWhere('paper.code', 'like', "%{$search}%")
                     ->orWhere('assessment_series.name', 'like', "%{$search}%")
-                    ->orWhere('assessment_series.year', 'like', "%{$search}%")
                     ->orWhere('marking_center.name', 'like', "%{$search}%")
                     ->orWhere('status', 'like', "%{$search}%")
                     ->orWhere('current_location', 'like', "%{$search}%");
@@ -115,4 +114,53 @@ class ScriptController extends Controller
         return redirect()->route('scripts.index')
             ->with('success', 'Script deleted successfully.');
     }
+
+    public function receive(ScriptBatch $script): RedirectResponse
+    {
+        $script->update([
+            'status' => 'Received',
+            'current_location' => 'Marking Center',
+            'updated_by' => auth()->id(),
+        ]);
+
+        return redirect()->route('scripts.index')
+            ->with('success', 'Script marked as received.');
+    }
+
+     public function dispatch(ScriptBatch $script): RedirectResponse
+    {
+        $script->update([
+            'status' => 'Dispatched',
+            'current_location' => 'In Transit',
+            'updated_by' => auth()->id(),
+        ]);
+
+        return redirect()->route('scripts.index')
+            ->with('success', 'Script marked as dispatched.');
+    }
+
+    public function deliver(ScriptBatch $script): RedirectResponse
+    {
+        $script->update([
+            'status' => 'Delivered',
+            'current_location' => 'Delivered',
+            'updated_by' => auth()->id(),
+        ]);
+
+        return redirect()->route('scripts.index')
+            ->with('success', 'Script marked as delivered.');
+    }
+
+    public function markForRechecking(ScriptBatch $script): RedirectResponse
+    {
+        $script->update([
+            'status' => 'Rechecking',
+            'current_location' => 'Rechecking',
+            'updated_by' => auth()->id(),
+        ]);
+
+        return redirect()->route('scripts.index')
+            ->with('success', 'Script marked for rechecking.');
+    }
+
 }

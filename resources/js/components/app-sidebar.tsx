@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { LayoutDashboard, Users, Building2, Package, Calendar, Wallet, Flag, ScrollText, Library, School, Train, Paperclip } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, Package, Calendar, Wallet, Flag, ScrollText, Library, School, Train, Paperclip, ArrowLeftRight } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -19,6 +19,7 @@ import assessmentSeries from '@/routes/assessment-series';
 import departments from '@/routes/departments';
 import markingCenters from '@/routes/marking-centers';
 import papers from '@/routes/papers';
+import scriptMovements from '@/routes/script-movements';
 import scripts from '@/routes/scripts';
 import type { NavItem } from '@/types';
 import employees from '@/wayfinder/routes/employees';
@@ -80,6 +81,11 @@ const mainNavItems: NavItem[] = [
         title: 'Scripts',
         href: scripts.index(),
         icon: ScrollText,
+    },
+    {
+        title: 'Script Movement',
+        href: scriptMovements.index(),
+        icon: ArrowLeftRight,
     },
     {
         title: 'Libraries',

@@ -1,18 +1,17 @@
 "use client";
 
 import { Head, router } from '@inertiajs/react';
-import { ArrowLeftRight, Plus, Share2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useState } from "react";
 import { toast } from 'sonner';
-import { ScriptForm } from '@/components/scripts/Script-form';
-import ScriptShowModal from '@/components/scripts/ScriptShowModal';
+import { ScriptMovementForm } from '@/components/scriptMovement/ScriptMovement-form';
+import ScriptMovementShowModal from '@/components/scriptMovement/ScriptMovementShowModal';
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/ui/confirm-provider";
 import { DataTable } from "@/components/ui/data-table";
 import AppLayout from "@/layouts/app-layout";
 import { dashboard } from '@/routes';
-import scriptMovements from '@/routes/script-movements';
-import scripts, { destroy } from '@/routes/scripts';
+import scriptMovements, { destroy } from '@/routes/script-movements';
 import type { BreadcrumbItem } from "@/types";
 import { columns } from './columns';
 
@@ -62,7 +61,7 @@ interface Props {
 
 const breadcrumbs = (): BreadcrumbItem[] => [
   { title: 'Dashboard', href: dashboard().url || "/" },
-  { title: 'Scripts', href: scripts.index().url || "/scripts" },
+  { title: 'Script Movement', href: scriptMovements.index().url || "/script-movements" },
 ];
 
 export default function ActivitiesIndex({ scripts, assessmentSeries, papers, markingCenters, filters }: Props) {
@@ -114,25 +113,15 @@ export default function ActivitiesIndex({ scripts, assessmentSeries, papers, mar
 
   return (
     <AppLayout breadcrumbs={breadcrumbs()}>
-      <Head title="Scripts" />
+      <Head title="Script Movement" />
 
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight">Scripts</h1>
-          <div className="space-x-2">
-            <Button size='xs' variant="outline" onClick={() => router.get(scriptMovements.index())}>
-              <Share2 className="mr-2 h-4 w-4" />
-              Allocate Scripts
-            </Button>
-            <Button size='xs' variant="outline" onClick={() => router.get(scriptMovements.index())}>
-              <ArrowLeftRight className="mr-2 h-4 w-4" />
-              Move Script
-            </Button>
-            <Button size='xs' onClick={openAddModal}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Script
-            </Button>
-          </div>
+          <h1 className="text-3xl font-bold tracking-tight">Script Movement</h1>
+          <Button onClick={openAddModal}>
+            <Plus className="mr-2 h-4 w-4" />
+            Move Script
+          </Button>
         </div>
 
         <DataTable
@@ -152,7 +141,7 @@ export default function ActivitiesIndex({ scripts, assessmentSeries, papers, mar
       </div>
 
       {/* Add/Edit Form Modal */}
-      <ScriptForm
+      <ScriptMovementForm
         initialData={editingScript || undefined}
         assessmentSeries={assessmentSeries}
         papers={papers}
@@ -162,7 +151,7 @@ export default function ActivitiesIndex({ scripts, assessmentSeries, papers, mar
       />
 
       {/* View Details Modal */}
-      <ScriptShowModal
+      <ScriptMovementShowModal
         open={showModalOpen}
         onClose={() => setShowModalOpen(false)}
         script={selectedScript}

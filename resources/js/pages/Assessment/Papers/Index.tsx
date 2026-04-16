@@ -20,6 +20,10 @@ interface Paper {
   name: string;
   code: string;
   file_path: string;
+  assessment_series: {
+    id: string;
+    name: string;
+  };
 }
 
 interface Paginatedpapers {
@@ -31,6 +35,7 @@ interface Paginatedpapers {
 
 interface Props {
   papers: Paginatedpapers;
+  assessmentSeries: { id: string; name: string }[];
   filters?: Record<string, string | number | undefined>;
 }
 
@@ -40,7 +45,7 @@ const breadcrumbs = (): BreadcrumbItem[] => [
   { title: 'Papers', href: papers.index().url || "/papers" },
 ];
 
-export default function ActivitiesIndex({ papers, filters }: Props) {
+export default function ActivitiesIndex({ papers, assessmentSeries, filters }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [showModalOpen, setShowModalOpen] = useState(false);
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
@@ -119,6 +124,7 @@ export default function ActivitiesIndex({ papers, filters }: Props) {
       {/* Add/Edit Form Modal */}
       <PaperForm
         initialData={editingPaper || undefined}
+        assessmentSeries={assessmentSeries}
         open={modalOpen}
         onOpenChange={setModalOpen}
       />

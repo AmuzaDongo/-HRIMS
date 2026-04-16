@@ -17,6 +17,7 @@ class UpdatePaperRequest extends FormRequest
             'name'       => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'max:255'],
             'file_path' => 'nullable|file|mimes:pdf|max:5120',
+            'assessment_series_id' => 'required|uuid|exists:assessment_series,id',
         ];
     }
 }

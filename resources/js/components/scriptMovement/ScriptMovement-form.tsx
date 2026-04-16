@@ -32,7 +32,7 @@ interface ScriptFormProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function ScriptForm({
+export function ScriptMovementForm({
   initialData,
   assessmentSeries,
   papers,

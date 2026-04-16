@@ -4,6 +4,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\MarkingCenterController;
 use App\Http\Controllers\PaperController;
 use App\Http\Controllers\ScriptController;
+use App\Http\Controllers\ScriptMovementController;
 use App\Http\Controllers\AssessmentCategoryController;
 use App\Http\Controllers\AssessmentSeriesController;
 use App\Http\Controllers\SubDepartmentController;
@@ -27,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('papers', PaperController::class);
     Route::resource('assessment-series', AssessmentSeriesController::class);
     Route::resource('scripts', ScriptController::class);
+    Route::resource('script-movements', ScriptMovementController::class);
     Route::resource('assessment-categories', AssessmentCategoryController::class);
     Route::resource('sub-departments', SubDepartmentController::class);
     Route::resource('positions', PositionController::class);

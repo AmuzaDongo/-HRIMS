@@ -18,16 +18,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import papers from "@/routes/papers";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 interface Paper {
   id?: string;
   name: string;
   code: string | null;
   file_path: string | null;
+  assessment_series?: { id: string; name: string };
 }
 
 interface PaperFormProps {
   initialData?: Paper;
+  assessmentSeries: { id: string; name: string }[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -36,6 +39,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export function PaperForm({
   initialData,
+  assessmentSeries,
   open,
   onOpenChange,
 }: PaperFormProps) {
@@ -43,6 +47,7 @@ export function PaperForm({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const validationSchema = Yup.object().shape({
+    assessment_series_id: Yup.string().required("Assessment series is required"),
     name: Yup.string().required("Name is required"),
     code: Yup.string().nullable(),
     file_path: Yup.mixed().nullable(),
@@ -65,6 +70,7 @@ export function PaperForm({
         <Formik
           enableReinitialize
           initialValues={{
+            assessment_series_id: initialData?.assessment_series?.id || "",
             name: initialData?.name || "",
             code: initialData?.code || "",
             file_path: null as File | null,
@@ -84,6 +90,10 @@ export function PaperForm({
 
             if (values.file_path) {
               formData.append("file_path", values.file_path);
+            }
+
+            if (values.assessment_series_id) {
+              formData.append("assessment_series_id", values.assessment_series_id);
             }
 
             if (isEditMode) {
@@ -116,9 +126,34 @@ export function PaperForm({
             }
           }}
         >
-          {({ isSubmitting, setFieldValue }) => (
+          {({ values, isSubmitting, setFieldValue }) => (
             <Form className="space-y-4">
-              {/* Name */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="assessment_series_id" className="text-right">
+                  Assessment Series
+                </Label>
+                <Select
+                  value={values.assessment_series_id || ""}
+                  onValueChange={(value) => setFieldValue("assessment_series_id", value)}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select assessment series" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="assessment_series_id">None</SelectItem>
+                    {assessmentSeries.map((series) => (
+                      <SelectItem key={series.id} value={series.id}>
+                        {series.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                  <ErrorMessage
+                    name="paper_id"
+                    component="p"
+                    className="col-span-4 text-sm text-red-600"
+                  />
+                </Select>
+              </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">
                   Name

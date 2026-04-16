@@ -6,14 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
+    /*
+     *  Run the migrations.
      */
     public function up(): void
     {
         Schema::create('script_allocations', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('script_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('batch_id')->nullable()->constrained('script_batches')->cascadeOnDelete();
             $table->foreignId('assessor_id')->constrained('users');
             $table->enum('type', ['single', 'batch']);
