@@ -1,8 +1,15 @@
-import type { ColumnDef } from "@tanstack/react-table"
-import { CheckCircle2, Inbox, MoreHorizontal, ShieldCheck, Truck } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import type { ColumnDef } from "@tanstack/react-table";
+import {
+  CheckCircle2,
+  Inbox,
+  MoreHorizontal,
+  Repeat,
+  Truck,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,37 +17,45 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
+import type { ScriptMovement } from "@/types/script-movement";
 
-interface Script {
-  id: string;
-  type: string;
-  assessment_series: {
-    id: string;
-    name: string;
-  };
-  paper: {
-    id: string;
-    name: string;
-    code: string;
-  };
-  batch_code: string;
-  total_scripts: number;
-  marking_center: {
-    id: string;
-    name: string;
-  };
-  current_location: string;
-  status: string;
-}
 
 interface ColumnActions {
-  onView: (script: Script) => void;
-  onEdit: (script: Script) => void;
+  onView: (script: ScriptMovement) => void;
+  onEdit: (script: ScriptMovement) => void;
   onDelete: (id: string) => void;
 }
 
-export const columns = (actions: ColumnActions): ColumnDef<Script>[] => [
+/* ================= STATUS CONFIG ================= */
+
+const movementConfig = {
+  dispatch: {
+    label: "Dispatched",
+    className: "bg-amber-100 text-amber-700",
+    icon: Truck,
+  },
+  receive: {
+    label: "Received",
+    className: "bg-blue-100 text-blue-700",
+    icon: Inbox,
+  },
+  internal_transfer: {
+    label: "Transfer",
+    className: "bg-purple-100 text-purple-700",
+    icon: Repeat,
+  },
+  return: {
+    label: "Returned",
+    className: "bg-green-100 text-green-700",
+    icon: CheckCircle2,
+  },
+};
+
+/* ================= COLUMNS ================= */
+
+export const columns = (actions: ColumnActions): ColumnDef<ScriptMovement>[] => [
+  /* Select */
   {
     id: "select",
     header: ({ table }) => (
@@ -49,105 +64,105 @@ export const columns = (actions: ColumnActions): ColumnDef<Script>[] => [
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate")
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
+        onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
+        onCheckedChange={(v) => row.toggleSelected(!!v)}
       />
     ),
     enableSorting: false,
-    enableHiding: false,
   },
 
-  { accessorKey: "paper.code", header: "Paper Code" },
-  { accessorKey: "paper.name", header: "Paper Name" },
-  { accessorKey: "marking_center.name", header: "Center" },
-  { accessorKey: "current_location", header: "Current Location" },
-  { accessorKey: "assessment_series.name", header: "Assessment Series" },
-  { accessorKey: "total_scripts", header: "Total Scripts" },
+
+  /* Batch */
   {
-    id: "status",
-    header: "Status",
+    accessorFn: (row) => row.script_batch?.batch_code,
+    header: "Batch Code",
+  },
+
+  /* Centers */
+  {
+    accessorFn: (row) => row.from_center?.name || "-",
+    header: "From",
+  },
+  {
+    accessorFn: (row) => row.to_center?.name || "-",
+    header: "To",
+  },
+
+  /* Destination */
+  {
+    accessorKey: "to_location",
+    header: "Destination",
+  },
+
+  /* Movement Type */
+  {
+    id: "movement_type",
+    header: "Movement",
     cell: ({ row }) => {
-      const status = (row.original.status || "draft").toLowerCase();
+      const type = row.original.movement_type;
+      const config = movementConfig[type];
 
-      const configs: Record<
-        string,
-        {
-          label: string;
-          color: string;
-          icon: React.ComponentType<{ className?: string }>;
-        }
-      > = {
-        received: {
-          label: "Received",
-          color: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30",
-          icon: Inbox,
-        },
-
-        allocated: {
-          label: "In Transit",
-          color: "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30",
-          icon: Truck,
-        },
-
-        marked: {
-          label: "Marked",
-          color: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30",
-          icon: CheckCircle2,
-        },
-
-        checked: {
-          label: "Checked",
-          color: "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30",
-          icon: ShieldCheck,
-        },
-      };
-
-      const config = configs[status] || configs.draft;
+      const Icon = config.icon;
 
       return (
-        <Badge 
-          variant="secondary"
-          className={`capitalize border-${config.color}-300 bg-${config.color}-100 text-${config.color}-700 flex items-center gap-1.5`}
-        >
-          <config.icon className="h-3 w-3" />
+        <Badge className={`flex items-center gap-1 ${config.className}`}>
+          <Icon className="h-3 w-3" />
           {config.label}
         </Badge>
       );
     },
   },
 
+  /* Date */
+  {
+    accessorKey: "moved_at",
+    header: "Date",
+    cell: ({ row }) => {
+      const date = new Date(row.original.moved_at);
+      return date.toLocaleString();
+    },
+  },
+
+  /* Actions */
   {
     id: "actions",
-    header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => {
-      const script = row.original
+      const script = row.original;
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
+            <Button variant="ghost" size="icon">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => actions.onView(script)}>View details</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => actions.onEdit(script)}>Edit</DropdownMenuItem>
-            <DropdownMenuItem  onClick={() => actions.onDelete(script.id)} className="text-destructive">
+
+            <DropdownMenuItem onClick={() => actions.onView(script)}>
+              View
+            </DropdownMenuItem>
+
+            <DropdownMenuItem onClick={() => actions.onEdit(script)}>
+              Edit
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={() => actions.onDelete(script.id)}
+              className="text-destructive"
+            >
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-]
+];

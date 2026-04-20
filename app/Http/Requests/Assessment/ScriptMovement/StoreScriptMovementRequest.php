@@ -14,14 +14,16 @@ class StoreScriptMovementRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => 'required|string|in:single,batch',
-            'paper_id' => 'required|uuid|exists:papers,id',
-            'center_id' => 'required|uuid|exists:marking_centers,id',
-            'total_scripts' => 'required|integer|min:1',
-            'batch_code' => 'nullable|string|max:255',
-            'status' => 'required|string|in:received,allocated,marked,checked',
-            'current_location' => 'required|string|max:255',
-            'assessment_series_id' => 'required|uuid|exists:assessment_series,id',
+            'script_batch_ids' => ['required', 'array'],
+            'script_batch_ids.*' => ['exists:script_batches,id'],
+            'marking_center_id' => ['required', 'exists:marking_centers,id'],
+            'movement_type' => ['required', 'in:Transfer,Dispatch,Return'],
+            'to_location' => ['required', 'string', 'max:255'],
+            'from_location' => ['required', 'string', 'max:255'],
+            'action' => ['required', 'string', 'max:255'],
+            'status' => ['required', 'string', 'max:255'],
+            'handled_by' => ['required', 'exists:users,id'],
+            'metadata' => ['nullable', 'array'],
         ];
     }
 }

@@ -1,96 +1,87 @@
 "use client";
 
-import { Head, router } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Head, router } from "@inertiajs/react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
-import { toast } from 'sonner';
-import { ScriptMovementForm } from '@/components/scriptMovement/ScriptMovement-form';
-import ScriptMovementShowModal from '@/components/scriptMovement/ScriptMovementShowModal';
+import { toast } from "sonner";
+
+import { ScriptMovementForm } from "@/components/scriptMovement/ScriptMovement-form";
+import ScriptMovementShowModal from "@/components/scriptMovement/ScriptMovementShowModal";
+
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/ui/confirm-provider";
 import { DataTable } from "@/components/ui/data-table";
 import AppLayout from "@/layouts/app-layout";
-import { dashboard } from '@/routes';
-import scriptMovements, { destroy } from '@/routes/script-movements';
+import { dashboard } from "@/routes";
+import scriptMovements, { destroy } from "@/routes/script-movements";
+
 import type { BreadcrumbItem } from "@/types";
-import { columns } from './columns';
+import type { ScriptMovement } from "@/types/script-movement";
+import { columns } from "./columns";
 
-interface Script {
-  id: string;
-  type: string;
-  assessment_series: {
-    id: string;
-    name: string;
-  };
-  paper: {
-    id: string;
-    name: string;
-    code: string;
-  };
-  batch_code: string;
-  total_scripts: number;
-  marking_center: {
-    id: string;
-    name: string;
-  };
-  current_location: string;
-  status: string;
-}
 
-interface Paginatedscripts {
-  data: Script[];
+interface PaginatedScripts {
+  data: ScriptMovement[];
   links: { url: string | null; label: string; active: boolean }[];
   total: number;
   per_page: number;
 }
-  
+
+/* ================= PROPS ================= */
+
 interface Props {
-  scripts: Paginatedscripts;
+  movements: PaginatedScripts;
   assessmentSeries: { id: string; name: string }[];
-  papers: {
-    id: string;
-    name: string;
-    code: string;
-  }[];
-  markingCenters: {
-    id: string;
-    name: string;
-  }[];
+  markingCenters: { id: string; name: string }[];
+  scriptBatches: { id: string; batch_code: string, paper: { id: string; name: string; code: string } }[];
   filters?: Record<string, string | number | undefined>;
 }
 
+/* ================= BREADCRUMBS ================= */
+
 const breadcrumbs = (): BreadcrumbItem[] => [
-  { title: 'Dashboard', href: dashboard().url || "/" },
-  { title: 'Script Movement', href: scriptMovements.index().url || "/script-movements" },
+  { title: "Dashboard", href: dashboard().url || "/" },
+  { title: "Script Movements", href: scriptMovements.index().url || "/script-movements" },
 ];
 
-export default function ActivitiesIndex({ scripts, assessmentSeries, papers, markingCenters, filters }: Props) {
+/* ================= COMPONENT ================= */
+
+export default function ScriptMovementIndex({
+  movements,
+  assessmentSeries,
+  markingCenters,
+  scriptBatches,
+  filters,
+}: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [showModalOpen, setShowModalOpen] = useState(false);
-  const [selectedScript, setSelectedScript] = useState<Script | null>(null);
-  const [editingScript, setEditingScript] = useState<Script | null>(null);
+
+  const [selectedScript, setSelectedScript] = useState<ScriptMovement | null>(null);
+  const [editingScript, setEditingScript] = useState<ScriptMovement | null>(null);
 
   const { confirm } = useConfirm();
+
+  /* ================= HANDLERS ================= */
 
   const openAddModal = () => {
     setEditingScript(null);
     setModalOpen(true);
   };
 
-  const handleView = (script: Script) => {
+  const handleView = (script: ScriptMovement) => {
     setSelectedScript(script);
     setShowModalOpen(true);
   };
 
-  const openEditModal = (script: Script) => {
+  const openEditModal = (script: ScriptMovement) => {
     setEditingScript(script);
     setModalOpen(true);
   };
 
   const handleDelete = (id: string) => {
     confirm({
-      title: "Delete Script",
-      description: "Are you sure you want to delete this script? This action cannot be undone.",
+      title: "Delete Movement",
+      description: "This will permanently delete this movement record.",
       onConfirm: async () => {
         const promise = new Promise((resolve, reject) => {
           router.delete(destroy(id), {
@@ -101,9 +92,9 @@ export default function ActivitiesIndex({ scripts, assessmentSeries, papers, mar
         });
 
         toast.promise(promise, {
-          loading: "Deleting paper...",
-          success: "Paper deleted successfully ✅",
-          error: "Failed to delete paper ❌",
+          loading: "Deleting movement...",
+          success: "Movement deleted successfully ✅",
+          error: "Failed to delete movement ❌",
         });
 
         await promise;
@@ -111,46 +102,54 @@ export default function ActivitiesIndex({ scripts, assessmentSeries, papers, mar
     });
   };
 
+  /* ================= UI ================= */
+
   return (
     <AppLayout breadcrumbs={breadcrumbs()}>
-      <Head title="Script Movement" />
+      <Head title="Script Movements" />
 
       <div className="p-6 space-y-6">
+
+        {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight">Script Movement</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Script Movements
+          </h1>
+
           <Button onClick={openAddModal}>
             <Plus className="mr-2 h-4 w-4" />
-            Move Script
+            New Movement
           </Button>
         </div>
 
+        {/* Table */}
         <DataTable
           columns={columns({
             onView: handleView,
             onEdit: openEditModal,
             onDelete: handleDelete,
           })}
-          data={scripts.data}
-          links={scripts.links} 
-          total={scripts.total}
-          pageSize={scripts.per_page}
-          currentRoute="/scripts"
+          data={movements.data}
+          links={movements.links}
+          total={movements.total}
+          pageSize={movements.per_page}
+          currentRoute="/script-movements"
           filters={filters}
-          searchPlaceholder="Search scripts..."
+          searchPlaceholder="Search movements..."
         />
       </div>
 
-      {/* Add/Edit Form Modal */}
+      {/* FORM MODAL */}
       <ScriptMovementForm
         initialData={editingScript || undefined}
         assessmentSeries={assessmentSeries}
-        papers={papers}
         marking_centers={markingCenters}
+        scriptBatches={scriptBatches}
         open={modalOpen}
         onOpenChange={setModalOpen}
       />
 
-      {/* View Details Modal */}
+      {/* VIEW MODAL */}
       <ScriptMovementShowModal
         open={showModalOpen}
         onClose={() => setShowModalOpen(false)}

@@ -32,6 +32,11 @@ class ScriptMovement extends Model
         });
     }
 
+    public function scriptBatch()
+    {
+        return $this->belongsTo(ScriptBatch::class, 'script_batch_id');
+    }
+
     public function handledBy()
     {
         return $this->belongsTo(User::class, 'handled_by');

@@ -43,9 +43,14 @@ class ScriptBatch extends Model
         return $this->belongsTo(MarkingCenter::class, 'center_id');
     }
 
-    public function assessment_series()
+    public function assessmentSeries()
     {
-        return $this->belongsTo(AssessmentSeries::class);
+        return $this->belongsTo(AssessmentSeries::class, 'assessment_series_id');
+    }
+
+    public function movements()
+    {
+        return $this->hasMany(ScriptMovement::class, 'script_batch_id');
     }
 }
 

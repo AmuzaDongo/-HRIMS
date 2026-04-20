@@ -21,29 +21,27 @@ class ScriptMovementController extends Controller
     {
         $query = ScriptMovement::query()
             ->with([
-                'paper:id,name,code',
                 'assessmentSeries:id,name',
                 'fromCenter:id,name',
                 'toCenter:id,name',
+                'scriptBatch:id,batch_code,paper_id,assessment_series_id,total_scripts',
+                'scriptBatch.paper:id,name,code',
+                'scriptBatch.assessmentSeries:id,name',
             ])
             ->when($request->search, function ($q, $search) {
                 $q->where(function ($q) use ($search) {
-
                     $q->where('movement_type', 'like', "%{$search}%")
-                      ->orWhere('to_location', 'like', "%{$search}%");
-
-                    $q->orWhereHas('paper', function ($qq) use ($search) {
+                    ->orWhere('to_location', 'like', "%{$search}%")
+                    ->orWhereHas('assessmentSeries', fn($qq) => 
                         $qq->where('name', 'like', "%{$search}%")
-                           ->orWhere('code', 'like', "%{$search}%");
-                    });
-
-                    $q->orWhereHas('assessmentSeries', function ($qq) use ($search) {
-                        $qq->where('name', 'like', "%{$search}%");
-                    });
-
-                    $q->orWhereHas('toCenter', function ($qq) use ($search) {
-                        $qq->where('name', 'like', "%{$search}%");
-                    });
+                    )
+                    ->orWhereHas('scriptBatch.paper', fn($qq) => 
+                        $qq->where('name', 'like', "%{$search}%")
+                            ->orWhere('code', 'like', "%{$search}%")
+                    )
+                    ->orWhereHas('toCenter', fn($qq) => 
+                        $qq->where('name', 'like', "%{$search}%")
+                    );
                 });
             });
 
@@ -51,14 +49,50 @@ class ScriptMovementController extends Controller
             ->paginate($request->get('per_page', 10))
             ->withQueryString();
 
+        $assessmentSeries = AssessmentSeries::select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        $markingCenters = MarkingCenter::select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        $scriptBatches = ScriptBatch::with([
+            'paper:id,name,code',
+            'assessmentSeries:id,name'
+        ])
+        ->select('id', 'batch_code', 'paper_id', 'assessment_series_id', 'total_scripts')
+        ->get();
+
+        $movements->getCollection()->transform(function ($movement) {
+            return [
+                'id'                => $movement->id,
+                'assessment_series' => $movement->assessmentSeries,
+                'script_batch'      => [
+                    'id'         => $movement->scriptBatch?->id,
+                    'batch_code' => $movement->scriptBatch?->batch_code,
+                    'total_scripts' => $movement->scriptBatch?->total_scripts ?? 0,
+                    'paper'      => $movement->scriptBatch?->paper,
+                ],
+                'from_center'       => $movement->fromCenter,
+                'to_center'         => $movement->toCenter,
+                'from_location'     => $movement->from_location,
+                'to_location'       => $movement->to_location,
+                'movement_type'     => $movement->movement_type,
+                'remarks'           => $movement->remarks,
+                'moved_at'          => $movement->moved_at,
+            ];
+        });
+
         return Inertia::render('Assessment/ScriptMovement/Index', [
-            'movements' => $movements,
-            'assessmentSeries' => AssessmentSeries::get(['id', 'name']),
-            'papers' => Paper::get(['id', 'name', 'code']),
-            'markingCenters' => MarkingCenter::get(['id', 'name']),
-            'filters' => $request->only(['search']),
+            'movements'       => $movements,
+            'scriptBatches'   => $scriptBatches, 
+            'assessmentSeries'=> $assessmentSeries,
+            'markingCenters'  => $markingCenters,
+            'filters'         => $request->only(['search']),
         ]);
     }
+
 
     public function store(StoreScriptMovementRequest $request): RedirectResponse
     {
@@ -72,7 +106,6 @@ class ScriptMovementController extends Controller
                 'moved_at' => now(),
             ]);
 
-            // 🔥 UPDATE CURRENT LOCATION
             ScriptBatch::where('id', $validated['script_batch_id'])
                 ->update([
                     'current_location' => $validated['to_location']
@@ -87,7 +120,7 @@ class ScriptMovementController extends Controller
     {
         return Inertia::render('Assessment/ScriptMovement/Show', [
             'movement' => $scriptMovement->load([
-                'paper',
+                'scriptBatch.paper',
                 'assessmentSeries',
                 'fromCenter',
                 'toCenter',

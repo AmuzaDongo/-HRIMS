@@ -21,17 +21,28 @@ class ScriptController extends Controller
 
             ->with(['paper:id,name,code'])
             ->with(['marking_center:id,name'])
-            ->with(['assessment_series:id,name'])
+            ->with(['assessmentSeries:id,name'])
             ->when($request->search, function ($q, $search) {
-                $q->where(function ($q) use ($search) {
-                    $q->where('paper.name', 'like', "%{$search}%")
-                    ->orWhere('paper.code', 'like', "%{$search}%")
-                    ->orWhere('assessment_series.name', 'like', "%{$search}%")
-                    ->orWhere('marking_center.name', 'like', "%{$search}%")
-                    ->orWhere('status', 'like', "%{$search}%")
-                    ->orWhere('current_location', 'like', "%{$search}%");
+            $q->where(function ($q) use ($search) {
+
+                $q->where('status', 'like', "%{$search}%")
+                ->orWhere('current_location', 'like', "%{$search}%");
+
+                $q->orWhereHas('paper', function ($qq) use ($search) {
+                    $qq->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
                 });
-            })
+
+                $q->orWhereHas('assessmentSeries', function ($qq) use ($search) {
+                    $qq->where('name', 'like', "%{$search}%");
+                });
+
+                $q->orWhereHas('marking_center', function ($qq) use ($search) {
+                    $qq->where('name', 'like', "%{$search}%");
+                });
+
+            });
+        })
             ->when($request->status, fn($q, $status) => $q->where('status', $status))
             ->when($request->type, fn($q, $type) => $q->where('type', $type));
 
